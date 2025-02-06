@@ -7,18 +7,20 @@
 after_initialize do
   require_dependency 'guardian'
 
-  def can_delete_user?(user)
-    return false if user.nil? || user.admin?
+  module ::UserGuardian
+    def can_delete_user?(user)
+      return false if user.nil? || user.admin?
 
-    if is_me?(user)
-      !SiteSetting.enable_discourse_connect
-    else
-      is_staff? &&
-        (
-          user.first_post_created_at.nil? ||
-            !user.has_more_posts_than?(User::MAX_STAFF_DELETE_POST_COUNT) ||
-            user.first_post_created_at > SiteSetting.delete_user_max_post_age.to_i.days.ago
-        )
+      if is_me?(user)
+        !SiteSetting.enable_discourse_connect
+      else
+        is_staff? &&
+          (
+            user.first_post_created_at.nil? ||
+              !user.has_more_posts_than?(User::MAX_STAFF_DELETE_POST_COUNT) ||
+              user.first_post_created_at > SiteSetting.delete_user_max_post_age.to_i.days.ago
+          )
+      end
     end
   end
 
